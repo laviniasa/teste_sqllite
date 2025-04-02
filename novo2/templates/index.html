@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sistema de Gestão de Estoque de Papel e Toner">
+    <meta name="keywords" content="estoque, papel, toner, gestão">
+    <title>Gestão de Estoque de Papel e Toner</title>
+    <!-- Adicionando o Bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/index.css">
+
+</head>
+
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; padding: 20px;">
+
+<!-- Menu de navegação -->
+<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e1e1e1;">
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav" style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+            <li class="nav-item navbar-brand">Estoque</li>
+        </ul>
+        <button id="menuButton" onclick="toggleMenu()" class="ml-auto">
+            <img src="../static/img/menu.png" alt="" style="width: 30px; height: 30px;">
+        </button>
+    </div>
+</nav>
+
+<!-- Menu Lateral -->
+<div id="sideMenu">
+    <ul class="menu">
+        <a href="#" class="menu-button home">
+            <img src="../static/img/logo.png" alt="Menu" style="height: 40px; width: auto; display: block;">
+        </a>
+  
+        <li title="search">
+            <a href="/solicitacoes" class="search">
+                <img src="../static/img/pencil.png" alt="Solicitações" style="width: 20px; height: 20px; margin-right: 10px;" />
+                Solicitações
+            </a>
+        </li>
+        
+        <li title="pencil">
+            <a href="/visualizar" class="pencil">
+                <img src="../static/img/bell.png" alt="Chamados" style="width: 20px; height: 20px; margin-right: 10px;" />
+                Chamados
+            </a>
+        </li>
+        
+        <li title="about">
+            <a href="/cadastrar" class="active about">
+                <img src="../static/img/info.png"Admin" style="width: 20px; height: 20px; margin-right: 10px;" />
+                Admin
+            </a>
+        </li>
+        
+        <li title="archive">
+            <a href="/historico" class="archive">
+                <img src="../static/img/mail.png" alt="Histórico" style="width: 20px; height: 20px; margin-right: 10px;" />
+                Histórico
+            </a>
+        </li>
+        
+        <li title="contact">
+            <a href="/principal" class="contact">
+                <img src="../static/img/logout.png" alt="Sair" style="width: 20px; height: 20px; margin-right: 10px;" />
+                Sair
+            </a>
+        </li>
+    </ul>
+</div>
+
+    <!-- Conteúdo principal -->
+    <div class="container">
+
+        <!-- Exibindo mensagens de flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Estoque de Papel Total -->
+        <div class="container mt-4">
+            <p>Quantidade de Papel: {{ papeis_quantidade }}</p>
+
+        <!-- Formulários -->
+        <div class="form-container">
+            <h3>Adicionar Resmas de Papel</h3>
+            <form method="POST" action="{{ url_for('adicionar_papel') }}">
+                <label for="quantidade">Quantidade de Resmas:</label>
+                <input type="number" name="quantidade" id="quantidade" class="form-control" required min="0">
+                <button type="submit" class="btn mt-2">Adicionar Papel</button>
+            </form>            
+        </div>
+        
+        <div class="form-container">
+            <h3>Retirar Resmas de Papel</h3>
+            <form method="POST" action="{{ url_for('retirar_papel') }}">
+                <label for="quantidade">Quantidade de Resmas:</label>
+                <input type="number" name="quantidade" id="quantidade" class="form-control" required min="0">
+                <label for="local">Local:</label>
+                <input type="text" name="local" id="local" class="form-control" required>
+                <button type="submit" class="btn mt-2">Retirar Papel</button>
+            </form>            
+        </div>
+
+        <div class="form-container">
+            <h3>Adicionar Toner</h3>
+            <form method="POST" action="{{ url_for('adicionar_toner') }}">
+                <label for="marca">Marca:</label>
+                <input type="text" name="marca" id="marca" class="form-control" required>
+            
+                <label for="tipo">SELB:</label>
+                <input type="text" name="tipo" id="tipo" class="form-control" required>
+            
+                <label for="quantidade">Quantidade:</label>
+                <input type="number" name="quantidade" id="quantidade" class="form-control" required min="0">
+            
+                <label for="validade">Validade:</label>
+                <input type="date" name="validade" id="validade" class="form-control" required>
+            
+                <button type="submit" class="btn mt-2">Adicionar Toner</button>
+            </form>
+            
+        </div>
+
+        <div class="form-container">
+            <h3>Retirar Toner</h3>
+            <form method="POST" action="{{ url_for('retirar_toner') }}">
+                <label for="marca">Marca:</label>
+                <input type="text" name="marca" id="marca" class="form-control" required>
+            
+                <label for="tipo">SELB:</label>
+                <input list="tipos-toner" name="tipo" id="tipo" class="form-control" required>
+            
+                <label for="quantidade">Quantidade:</label>
+                <input type="number" name="quantidade" id="quantidade" class="form-control" required min="0">
+            
+                <label for="local">Local:</label>
+                <input type="text" name="local" id="local" class="form-control" required>
+            
+                <!-- Campo de validade adicionado -->
+                <label for="validade">Validade:</label>
+                <input type="date" name="validade" id="validade" class="form-control" required>
+            
+                <button type="submit" class="btn mt-2">Retirar Toner</button>
+                <button type="button" class="btn btn-info mt-2" data-toggle="modal" data-target="#modalTonerInfo">
+                    <img src="../static/img/eye.png" alt="" style="width: 20px; height: 20px;"/>
+                </button>
+            </form>
+        </div>
+        
+
+        </div> 
+    </div>
+
+<!-- Modal -->
+<!-- Modal -->
+<div class="modal fade" id="modalTonerInfo" tabindex="-1" role="dialog" aria-labelledby="modalTonerInfoLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTonerInfoLabel">Estoque de Toner</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Tabela de toner -->
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Descrição</th>
+                            <th>Tipo</th>
+                            <th>Marca</th>
+                            <th>Quantidade</th>
+                            <th>Validade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for toner in toners %}
+                        <tr>
+                            <td>{{ toner.descricao }}</td>
+                            <td>{{ toner.tipo }}</td>
+                            <td>{{ toner.marca }}</td>
+                            <td>{{ toner.quantidade }}</td>
+                            <td>{{ toner.validade }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+ 
+    <!-- Scripts do Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+// Função para abrir e fechar o menu lateral
+function toggleMenu() {
+    const menu = document.getElementById("sideMenu");
+    menu.classList.toggle("open");
+}
+
+// Selecionando o botão, o menu e o conteúdo
+const menuButton = document.getElementById('menuButton');
+const sideMenu = document.getElementById('sideMenu');
+const container = document.querySelector('.container');
+
+// Alternar o estado do menu ao clicar no botão
+menuButton.addEventListener('click', (event) => {
+    sideMenu.classList.toggle('closed');
+    container.classList.toggle('menu-closed');
+    event.stopPropagation(); // Impede que o clique no botão feche o menu
+});
+
+// Esconde mensagens de flash após 2 segundos
+window.onload = function() {
+    document.querySelectorAll('.flash-messages .alert').forEach(message => {
+        setTimeout(() => { message.style.display = 'none'; }, 2000);
+    });
+};
+
+// Validação de quantidade para evitar valores negativos
+function validarQuantidade(event) {
+    const quantidadeInput = event.target.querySelector('input[name="quantidade"]');
+    const quantidade = parseInt(quantidadeInput.value, 10);
+    
+    if (quantidade < 0) {
+        alert('A quantidade não pode ser menor que 0!');
+        event.preventDefault(); // Impede o envio do formulário
+    }
+}
+
+// Aplica a validação para todos os formulários
+document.querySelectorAll('form').forEach(form => {
+    form.addEventListener('submit', validarQuantidade);
+});
+
+// Função para adicionar toner via requisição AJAX
+function adicionarToner(marca, tipo, quantidade, validade) {
+    const formData = new URLSearchParams();
+    formData.append('marca', marca);
+    formData.append('tipo', tipo);
+    formData.append('quantidade', quantidade);
+    formData.append('validade', validade);
+
+    fetch('/adicionar_toner', {
+        method: 'POST',
+        body: formData,
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        atualizarModalToners(data.toners); // Atualiza a exibição dos toners
+    })
+    .catch(error => console.error('Erro ao adicionar toner:', error));
+}
+
+
+
+    </script>
+
+</body>
+</html>
