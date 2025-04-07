@@ -2,24 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-import os
 from datetime import datetime
-from sqlalchemy import func
-from flask import jsonify
-
-
-# Passo 1: String com a data
-validade_str = '2025-04-01'
-
-# Passo 2: Converter a string para um objeto datetime
-validade_datetime = datetime.strptime(validade_str, '%Y-%m-%d')
-
-# Passo 3: Extrair a parte da data (sem a hora)
-validade = validade_datetime.date()
-
-# Agora a variável 'validade' é um objeto 'date', pronto para ser usado no banco de dados
-print(validade)  # Output: 2025-04-01
-
 
 # Configuração do Flask
 app = Flask(__name__)
@@ -78,7 +61,9 @@ def load_user(user_id):
 # Página inicial
 @app.route('/')
 def index():
-    return render_template('principal.html')
+    toners = Toner.query.all()  # Recupera todos os toners do banco de dados
+    return render_template('principal.html', toners=toners)
+
 
 @app.route('/index')
 @login_required
@@ -92,7 +77,6 @@ def index_page():
             Toner.validade
         ).order_by(Toner.descricao).all()
 
-
         papeis = Papel.query.all()
     except Exception as e:
         flash(f'Ocorreu um erro ao acessar os dados: {e}', 'danger')
@@ -100,8 +84,6 @@ def index_page():
         papeis = []
 
     return render_template('index.html', toners=toners, papeis=papeis)
-
-
 
 # Página de login
 @app.route('/login', methods=['GET', 'POST'])
@@ -151,17 +133,7 @@ def chamado():
         return redirect(url_for('index'))
     return render_template('chamado.html')
 
-# Inicializando um usuário padrão (caso não exista)
-with app.app_context():
-    user = User.query.filter_by(username='admin').first()
-    if not user:
-        hashed_password = generate_password_hash('123456')  # A senha será criptografada
-        user = User(username='admin', password=hashed_password)
-        db.session.add(user)
-        db.session.commit()
-
 # -----------------pagina index.html ----------------------
-
 @app.route('/adicionar_papel', methods=['GET', 'POST'])
 def adicionar_papel():
     if request.method == 'POST':
@@ -178,7 +150,6 @@ def adicionar_papel():
         return redirect(url_for('index_page'))
     return render_template('adicionar_papel.html')
 
-
 @app.route('/retirar_papel', methods=['POST'])
 def retirar_papel():
     papel = Papel.query.first()  # Recupera o primeiro papel
@@ -191,76 +162,59 @@ def retirar_papel():
     
     return redirect(url_for('index_page'))  # Redireciona para a página correta
 
-from sqlalchemy import func
-
 @app.route('/adicionar_toner', methods=['POST'])
 def adicionar_toner():
-    marca = request.json['marca']
-    tipo = request.json['tipo']
-    quantidade = int(request.json['quantidade'])
-    validade_str = request.json['validade']
-
+    marca = request.form['marca']  # Aqui pega a marca
+    tipo = request.form['tipo']
+    quantidade = int(request.form['quantidade'])  # Certifique-se de que a quantidade seja um número inteiro
+    validade_str = request.form['validade']  # '2025-04-06' por exemplo
+    
+    # Converter a string de data para um objeto datetime.date
     validade = datetime.strptime(validade_str, '%Y-%m-%d').date()
 
-    toner_existente = Toner.query.filter_by(marca=marca, tipo=tipo, validade=validade).first()
-    
+    # Utilizar a marca como a descrição
+    descricao = marca  # Agora 'descricao' é igual à marca
+
+    # Verificar se já existe um toner com os mesmos atributos
+    toner_existente = Toner.query.filter_by(
+        descricao=descricao,  # Usando a marca como descrição
+        tipo=tipo,
+        marca=marca,
+        validade=validade
+    ).first()
+
     if toner_existente:
+        # Se o toner já existir, apenas incrementar a quantidade
         toner_existente.quantidade += quantidade
+        db.session.commit()
+        flash(f'{quantidade} unidades do toner {toner_existente.tipo} adicionadas à quantidade existente!', 'success')
     else:
-        toner = Toner(marca=marca, tipo=tipo, quantidade=quantidade, validade=validade)
-        db.session.add(toner)
+        # Caso contrário, criar um novo toner
+        novo_toner = Toner(descricao=descricao, tipo=tipo, quantidade=quantidade, validade=validade, marca=marca)
+        db.session.add(novo_toner)
+        db.session.commit()
+        flash('Toner adicionado com sucesso!', 'success')
     
-    db.session.commit()
-
-    toners = Toner.query.all()
-    toners_json = [{"id": t.id, "marca": t.marca, "tipo": t.tipo, "quantidade": t.quantidade, "validade": t.validade.strftime('%Y-%m-%d')} for t in toners]
-
-    return jsonify({"message": "Toner atualizado!", "toners": toners_json})
-
+    return redirect(url_for('index_page'))  # Redireciona para a página do estoque de toners
 
 @app.route('/retirar_toner', methods=['POST'])
 def retirar_toner():
     toner_id = request.form.get('toner_id')
     quantidade_retirada = int(request.form.get('quantidade', 1))
 
-    print(f"Toner ID recebido: {toner_id}")
-    print(f"Quantidade solicitada: {quantidade_retirada}")
-
     toner = Toner.query.get(toner_id)  
 
     if toner:
-        print(f"Quantidade atual do toner {toner.descricao}: {toner.quantidade}")
-    
-    if toner and toner.quantidade >= quantidade_retirada:
-        toner.quantidade -= quantidade_retirada  
-        db.session.commit()  
-        flash(f'{quantidade_retirada} unidades do toner {toner.descricao} foram retiradas!', 'success')
+        if toner.quantidade >= quantidade_retirada:
+            toner.quantidade -= quantidade_retirada  
+            db.session.commit()  
+            flash(f'{quantidade_retirada} unidades do toner {toner.descricao} foram retiradas!', 'success')
+        else:
+            flash('Quantidade insuficiente de toner.', 'danger')
     else:
-        flash('Quantidade insuficiente de toner.', 'danger')
+        flash('Toner não encontrado.', 'danger')
 
     return redirect(url_for('index_page'))  
-
-
-
-
-#teste-----------------------------
-@app.route('/test_db')
-def test_db():
-    # Tentando adicionar um dado
-    try:
-        novo_papel = Papel(descricao="Papel A4", quantidade=10)
-        db.session.add(novo_papel)
-        db.session.commit()
-        return "Banco de dados funcionando, dado adicionado!"
-    except Exception as e:
-        return f"Erro: {str(e)}"
-
-@app.route('/listar_papel')
-def listar_papel():
-    papeis = Papel.query.all()  # Lista todos os papéis cadastrados
-    return render_template('listar_papel.html', papeis=papeis)
-
-
 
 # Rodar o servidor
 if __name__ == '__main__':
