@@ -1,0 +1,341 @@
+/* Resetando margens e paddings de forma mais eficiente */
+html, body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Variáveis de cores e fontes */
+:root {
+    --cor-primaria: #e67e22; 
+    --cor-secundaria: #1e4a28; 
+    --cor-background: #f8f3e2;
+    --cor-texto: #333;
+    --cor-sombra: rgba(0, 0, 0, 0.1);
+    --cor-sucesso: #d4edda;
+    --cor-erro: #f8d7da;
+    --cor-titulo: #2c3e50;
+    --cor-fundo-formulario: #f8f3e2;
+    --cor-borda: #ddd;
+    --cor-tabela-linha: #f9f9f9;
+}
+
+/* Fonte global */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--cor-background);
+    color: var(--cor-texto);
+    line-height: 1.6;
+}
+
+/* Container principal */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px var(--cor-sombra);
+    margin-top: 50px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* Títulos principais */
+h2 {
+    text-align: center;
+    color: var(--cor-secundaria);
+    font-size: 2.8em;
+    margin-bottom: 30px;
+    font-weight: 600;
+}
+
+/* Botões reutilizáveis */
+.btn {
+    text-decoration: none;
+    padding: 10px 15px;
+    background-color: var(--cor-primaria);
+    color: white;
+    border-radius: 5px;
+    display: inline-block;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn:hover {
+    transform: scale(1.1);
+    background-color: #d35400;
+}
+
+.btn:focus {
+    outline: none;
+}
+
+/* Estilo do formulário */
+form {
+    background-color: var(--cor-fundo-formulario);
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px var(--cor-sombra);
+    margin-bottom: 30px;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0 20px;
+    border-radius: 6px;
+    border: 1px solid var(--cor-borda);
+    font-size: 1em;
+    transition: all 0.3s ease;
+}
+
+input[type="submit"] {
+    background-color: var(--cor-primaria);
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+    padding: 12px;
+    border-radius: 6px;
+    border: none;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .row {
+        flex-direction: column;
+    }
+
+    .column {
+        width: 100%;
+    }
+
+    table {
+        overflow-x: auto;
+    }
+
+    .container {
+        padding: 15px;
+    }
+
+    h2 {
+        font-size: 2.2em;
+    }
+
+    form {
+        padding: 20px;
+        max-width: 100%;
+    }
+
+    input, select, textarea {
+        font-size: 1em;
+        padding: 10px;
+    }
+
+    .btn, .form-actions input {
+        width: 100%;
+    }
+}
+
+/* Tabelas */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+table th, table td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid var(--cor-borda);
+}
+
+table th {
+    background-color: #f1f1f1;
+    font-weight: bold;
+}
+
+table tr:nth-child(even) {
+    background-color: var(--cor-tabela-linha);
+}
+
+table tr:hover {
+    background-color: #eaf0f1;
+}
+
+/* Caixa maior que contém tudo */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f7f7f7; /* Cor de fundo suave */
+}
+
+/* Estilo para a caixa de login maior */
+.login-box {
+    width: 100%;
+    max-width: 380px; /* Largura um pouco menor para o efeito visual */
+    padding: 30px;
+    background-color: white;
+    border-radius: 10px; /* Bordas arredondadas para suavizar o visual */
+    box-shadow: 0px 15px 30px rgba(0, 0, 0, 0.1); /* Sombra sutil para dar profundidade */
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* Título */
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-family: 'Arial', sans-serif;
+    font-weight: 600;
+    color: #333; /* Cor escura para o título */
+}
+
+/* Estilos para as mensagens de erro e sucesso */
+.messages {
+    margin-bottom: 15px;
+}
+
+/* Estilos para as mensagens */
+.success-message {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 14px;
+    border: 1px solid #c3e6cb;
+    margin-bottom: 15px;
+}
+
+.error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 14px;
+    border: 1px solid #f5c6cb;
+    margin-bottom: 15px;
+}
+
+/* Estilo para os campos de entrada */
+.input-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px; /* Maior espaçamento entre os campos */
+}
+
+/* Estilo para os rótulos (labels) */
+.input-group label {
+    font-size: 14px;
+    margin-bottom: 5px;
+    text-align: left;
+    color: #555; /* Cor suave para os rótulos */
+}
+
+/* Estilo para os campos de entrada (inputs) */
+.input-group input {
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.input-group input:focus {
+    border-color: #4CAF50; /* Cor verde suave quando o campo é focado */
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.3); /* Sombrinha suave para dar destaque */
+}
+
+/* Estilo para o botão de envio */
+.form-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+/* Botão de envio */
+.form-actions input {
+    padding: 12px 25px; /* Tamanho do botão */
+    font-size: 16px;
+    background-color: #4CAF50; /* Cor de fundo verde */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Transições para o botão */
+}
+
+.form-actions input:hover {
+    background-color: #45a049; /* Cor do botão ao passar o mouse */
+    transform: translateY(-2px); /* Efeito de elevação ao passar o mouse */
+}
+
+.form-actions input:active {
+    transform: translateY(2px); /* Efeito de pressionar o botão */
+}
+
+/* Ajustes para garantir que a caixa de login seja bem posicionada */
+form {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+/* Adicionando um efeito de transição para a caixa de login */
+.login-box {
+    animation: fadeIn 0.8s ease-out;
+}
+
+/* Animação para o fade-in */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Alertas */
+.alert {
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    font-size: 14px;
+    color: white;
+    background-color: red;
+}
+
+.alert-danger {
+    background-color: #f44336;  /* Vermelho para erro */
+}
+
+.icon {
+    margin-right: 8px;
+}
+
+/* Logo */
+.logo {
+    max-width: 200px;
+    margin-bottom: 20px;
+    background-color: transparent; /* Garante que o fundo seja transparente */
+}
+
+/* Cabeçalho */
+header {
+    background-color: #f4f4f4; /* Fundo igual ao da página */
+    color: #333;  /* Cor do texto ajustada */
+    padding: 10px 0;
+    width: 100%;
+    text-align: center;
+}
