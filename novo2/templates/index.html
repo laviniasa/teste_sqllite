@@ -160,8 +160,6 @@
 
         </div> 
     </div>
-
-<!-- Modal -->
 <!-- Modal -->
 <div class="modal fade" id="modalTonerInfo" tabindex="-1" role="dialog" aria-labelledby="modalTonerInfoLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -174,12 +172,11 @@
             </div>
             <div class="modal-body">
                 <!-- Tabela de toner -->
-                <table>
+                <table class="table">
                     <thead>
                         <tr>
-                            <th>Descrição</th>
+                            <th>Marca</th>   <!-- Mantendo a marca -->
                             <th>Tipo</th>
-                            <th>Marca</th>
                             <th>Quantidade</th>
                             <th>Validade</th>
                         </tr>
@@ -187,9 +184,8 @@
                     <tbody>
                         {% for toner in toners %}
                         <tr>
-                            <td>{{ toner.descricao }}</td>
+                            <td>{{ toner.marca }}</td> <!-- Exibindo a marca corretamente -->
                             <td>{{ toner.tipo }}</td>
-                            <td>{{ toner.marca }}</td>
                             <td>{{ toner.quantidade }}</td>
                             <td>{{ toner.validade }}</td>
                         </tr>
